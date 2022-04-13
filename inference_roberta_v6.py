@@ -231,12 +231,12 @@ def entity_extraction3(inputs, probs, thres):
     return entity
 def inference(thres_list, eval_label):
     
-    cv_models = []
+    ensembles = []
     for k in range(3):
         model = relation_model().to(device)
         model.load_state_dict(torch.load(f'{output_dir}/{model_type}_{k}.pt'))
         model = model.eval()    
-        cv_models.append(deepcopy(model))
+        ensembles.append(deepcopy(model))
 
     ts_id = list(eval_label.keys())
     ts_data = RelationData(ts_id)
@@ -252,8 +252,8 @@ def inference(thres_list, eval_label):
         
         probs = []
         with torch.no_grad():
-            for k in range(len(cv_models)):
-                p = cv_models[k](c_in, d_in)
+            for k in range(len(ensembles)):
+                p = ensembles[k](c_in, d_in)
                 probs.append(p.unsqueeze(0))
             probs = torch.cat(probs, 0).mean(0)
 
